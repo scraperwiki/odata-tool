@@ -3,7 +3,7 @@
   <workspace>
     <atom:title>Default</atom:title>
     {% for collection in collections %}
-    <collection href="{{ collection }}">
+    <collection href="{{ base_url }}/{{ collection }}">
       <atom:title>{{ collection }}</atom:title>
     </collection>
     {% endfor %}
