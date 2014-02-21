@@ -6,21 +6,20 @@
     <meta http-equiv="cleartype" content="on">
     <link rel="stylesheet" href="//scraperwiki.com/vendor/style/bootstrap.min.css">
     <link rel="stylesheet" href="//scraperwiki.com/style/scraperwiki.css">
+    <link rel="stylesheet" href="style.css">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
     <script src="//scraperwiki.com/vendor/js/bootstrap.min.js"></script>
     <script src="//scraperwiki.com/js/scraperwiki.js"></script>
-    <script>
-    $.ajax({
-        url: '../cgi-bin/dataset_url',
-        data: {
-            url: scraperwiki.readSettings().target.url
-        }
-    }).done(function(data){
-        console.log('saved!')
-    })
-    </script>
+    <script src="code.js"></script>
 </head>
 <body>
-    <p>Connect with OData</p>
+    <p id="loading" class="muted text-center"><img src="loading.gif" width="16" height="16"> <span>Loading&hellip;</span></p>
+    <div id="error"></div>
+    <div id="feeds">
+        <div id="help">
+            <h1>This dataset is being published as OData.</h1>
+            <p>Copy the URL for the table you&rsquo;re interested in, and paste it into your data analysis package, like Tableau, QlikView or Excel Power Query.</p>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,0 +1,56 @@
+body {
+  margin: 0 auto;
+  padding: 0;
+  width: 400px;
+}
+
+#feeds, #error {
+  display: none;
+}
+
+#loading {
+  margin-top: 50px;
+}
+
+#loading img {
+  vertical-align: -2px;
+  margin-right: 5px;
+}
+
+#feeds {
+  padding: 30px 0 40px 0;
+}
+
+#help {
+  background: #FFEBC8;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  padding: 20px;
+}
+
+#help h1 {
+  font-size: 32px;
+  line-height: 38px;
+}
+
+#help p {
+  margin-bottom: 0;
+}
+
+#feeds h2 {
+  font-size: 24px;
+  margin: 20px 0 0 0;
+}
+
+#feeds h2:before {
+  content: "Table:";
+  font-weight: 200;
+  color: #bbb;
+  margin-right: 5px;
+}
+
+#feeds input {
+  width: 386px;
+  margin-bottom: 0;
+}
