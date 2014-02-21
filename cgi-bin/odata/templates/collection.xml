@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<feed xml:base="{{ base_url }}" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns="http://www.w3.org/2005/Atom">
+  <title type="text">{{ collection }}</title>
+  <id>{{ base_url }}/{{ collection }}</id>
+  <updated>2014-02-19T14:13:38Z</updated>
+  <link rel="self" title="{{ collection }}" href="{{ collection }}" />
+  {% for entry in entries %}
+  <entry>
+    <id>{{ entry.url }}</id>
+    <title type="text"></title>
+    <updated>2014-02-19T14:13:38Z</updated>
+    <author>
+      <name />
+    </author>
+    <category term="scraperwiki.com.sql" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+    <content type="application/xml">
+      <m:properties>
+        {% for cell in entry.cells %}
+        {% if cell.value is none %}
+        <d:{{ cell.column }} m:type="{{ cell.type }}" m:null="true" />
+        {% else %}
+        <d:{{ cell.column }} m:type="{{ cell.type }}">{{ cell.value }}</d:{{ cell.column }}>
+        {% endif %}
+        {% endfor %}
+      </m:properties>
+    </content>
+  </entry>
+  {% endfor %}
+  {% if next_url %}
+  <link rel="next" href="{{ next_url|safe }}" />
+  {% endif %}
+</feed>
