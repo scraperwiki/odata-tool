@@ -25,3 +25,17 @@ class CgiTestCase(unittest.TestCase):
         assert len(dom.cssselect('collection')) == 2
         assert dom.cssselect('title')[1].text_content() == 'tweets'
         assert dom.cssselect('title')[2].text_content() == '__status'
+
+    def test_get_tables_calls_sql_endpoint(self):
+        url = 'https://example.com/sql/meta'
+        with mock.patch('requests.get') as requests_get:
+            tables = odata.get_tables(url)
+        assert requests_get.called
+        requests_get.assert_called_with(url)
+
+
+    def test_get_tables_returns_a_list(self):
+        url = 'https://example.com/sql/meta'
+        tables = odata.get_tables(url)
+        print type(tables)
+        assert isinstance(tables, list)

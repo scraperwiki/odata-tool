@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import requests
 from logging import FileHandler
 from wsgiref.handlers import CGIHandler
 import os
@@ -9,6 +10,11 @@ import os
 from flask import Flask, Response, render_template, request
 
 app = Flask(__name__)
+
+# Log exceptions to http/error.txt
+logger = FileHandler('/home/http/error.txt')
+logger.setLevel(logging.WARNING)
+app.logger.addHandler(logger)
 
 # Avoid default Flask redirect when a
 # URL is requested without a final slash
@@ -30,18 +36,33 @@ request_url = 'https://{}{}'.format(
 )
 
 
+def get_dataset_url():
+    try:
+        with open('../../dataset_url.txt', 'r') as file:
+            return file.read()
+    except IOError:
+        return None
+
+
+dataset_url = get_dataset_url()
+
+
 @app.route(root + "/")
 def show_collections():
-    tables = get_tables()
+    tables = get_tables('{}/sql/meta'.format(dataset_url))
     resp = Response()
     resp.headers['Content-Type'] = 'application/xml;charset=utf-8'
     resp.data = render_template('collections.xml', base_url=request_url, collections=tables)
     return resp
 
 
-def get_tables():
-    # This function should call the sql meta endpoint
-    return []
+def get_tables(url):
+    try:
+        req = requests.get(url)
+        meta = req.json()
+    except:
+        meta = {'table': {}}
+    return meta['table'].keys()
 
 
 if __name__ == "__main__":
