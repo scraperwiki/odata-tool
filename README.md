@@ -8,4 +8,9 @@ When the tool is first installed, it records the source dataset url and `pip ins
 
 ## Tests
 
-Unit tests for the CGI script are stored in `/test`. You can run them with `nosetest` or `specloud`.
+Unit tests for the CGI script are stored in `/cgi-bin/odata`. You can run them with `nosetest` or `specloud`, like so:
+
+```
+cd tool/cgi-bin/odata
+specloud
+```
