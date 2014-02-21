@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+import cgi
+import cgitb
+
+cgitb.enable()
+data = cgi.FieldStorage()
+
+def save_url(url):
+    with open("/home/dataset_url.txt", "w") as fd:
+        fd.write(url)
+
+def read_url():
+    try:
+        with open("/home/dataset_url.txt", "r") as fd:
+            return fd.read()
+    except IOError:
+        return ''
+
+if 'url' in data:
+    save_url(data['url'].value)
+
+print
+print read_url()

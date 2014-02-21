@@ -1,7 +1,24 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
+    <meta charset="utf-8">
     <title>Connect with OData</title>
+    <meta http-equiv="cleartype" content="on">
+    <link rel="stylesheet" href="//scraperwiki.com/vendor/style/bootstrap.min.css">
+    <link rel="stylesheet" href="//scraperwiki.com/style/scraperwiki.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+    <script src="//scraperwiki.com/vendor/js/bootstrap.min.js"></script>
+    <script src="//scraperwiki.com/js/scraperwiki.js"></script>
+    <script>
+    $.ajax({
+        url: '../cgi-bin/dataset_url',
+        data: {
+            url: scraperwiki.readSettings().target.url
+        }
+    }).done(function(data){
+        console.log('saved!')
+    })
+    </script>
 </head>
 <body>
     <p>Connect with OData</p>
