@@ -3,7 +3,7 @@
   <title type="text">{{ collection }}</title>
   <id>{{ base_url }}/{{ collection }}</id>
   <updated>2014-02-19T14:13:38Z</updated>
-  <link rel="self" title="{{ collection }}" href="{{ collection }}" />
+  <link rel="self" title="{{ collection }}" href="{{ base_url }}" />
   {% for entry in entries %}
   <entry>
     <id>{{ entry.url }}</id>
