@@ -56,6 +56,17 @@ def show_collections():
 @app.route(api_path + "/<collection>/")
 def show_collection(collection):
 
+    # Check that the table exists
+    tables = get_tables('{}/sql/meta'.format(dataset_url))
+    if collection not in tables:
+        resp = Response()
+        resp.headers[b'Content-Type'] = b'application/xml;charset=utf-8'
+        resp.data = render_template(
+            'error.xml',
+            message="Resource not found for the segment '{}'.".format(collection)
+        )
+        return resp
+
     # Handle pagination
     if request.args.get('$skiptoken'):
         limit = 100
@@ -72,7 +83,6 @@ def show_collection(collection):
     else:
         rowid = None
 
-    # TODO: check that `collection` table actually exists
     entries = get_entries_in_collection(
         '{}/sql'.format(dataset_url),
         collection,
