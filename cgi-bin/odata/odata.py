@@ -193,9 +193,6 @@ if __name__ == "__main__":
     logger.setLevel(logging.INFO)
     app.logger.addHandler(hdlr)
 
-    logger.info('about to run CGIHandler')
-    logger.info('os.environ = {}'.format(os.environ))
-
     try:
         CGIHandler().run(app)
     except Exception, e:
