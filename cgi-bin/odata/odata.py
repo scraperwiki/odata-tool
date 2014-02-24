@@ -20,7 +20,7 @@ app.url_map.strict_slashes = False
 
 # Get the "root" url path, because
 # Flask isn't running at the domain root
-path = os.environ.get('PATH_INFO', '/box/token/cgi-bin/odata')
+path = os.environ.get('PATH_INFO', '/toolid/token/cgi-bin/odata')
 root = '/'.join(path.split('/')[0:5])
 
 # Stop extra whitespace creeping
@@ -30,7 +30,7 @@ app.jinja_env.lstrip_blocks = True
 
 request_url = 'https://{}{}'.format(
     os.environ.get('HTTP_HOST', 'server.scraperwiki.com'),
-    os.environ.get('PATH_INFO', '/box/token/cgi-bin/odata')
+    os.environ.get('PATH_INFO', '/toolid/token/cgi-bin/odata')
 )
 
 def get_dataset_url():
@@ -80,15 +80,24 @@ def show_collection(collection):
         offset=offset,
         rowid=rowid
     )
+
+    # Add pagination links if required
     if len(entries) != limit:
         next_url = None
     elif request.args.get('$skiptoken'):
         next_url = '{}?$skiptoken={}'.format(request_url, entries[-1]['rowid'])
     else:
         next_url = '{}?$top={}&$skip={}'.format(request_url, limit, limit + offset)
+
     resp = Response()
     resp.headers['Content-Type'] = b'application/xml;charset=utf-8'
-    resp.data = render_template('collection.xml', base_url=request_url, collection=collection, entries=entries, next_url=next_url)
+    resp.data = render_template(
+        'collection.xml',
+        base_url=request_url,
+        collection=collection,
+        entries=entries,
+        next_url=next_url
+    )
     return resp
 
 
