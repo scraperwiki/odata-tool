@@ -11,8 +11,8 @@ var saveUrl = function(){
     }
   }).done(function(currentUrl){
     dfd.resolve(currentUrl)
-  }).fail(function(jqXHR, textStatus, errorThrown){
-    dfd.reject('Dataset could not be saved', jqXHR.status + ' ' + jqXHR.statusText)
+  }).fail(function(jqXHR){
+    dfd.reject('Source dataset URL could not be saved.', jqXHR.status + ' ' + jqXHR.statusText)
   })
   return dfd.promise()
 }
@@ -37,13 +37,16 @@ var pipInstall = function(){
     } else {
       // Something went wrong with pip install!
       // There will be a traceback in stdout.
-      dfd.reject('Python dependencies could not be installed', $.trim(stdout))
+      dfd.reject('Python dependencies could not be installed.', $.trim(stdout))
     }
+  }).fail(function(jqXHR){
+    dfd.reject('Exec endpoint returned ' + jqXHR.status + ' ' + jqXHR.statusText, jqXHR.status + ' ' + jqXHR.statusText)
   })
   return dfd.promise()
 }
 
 var showEndpoints = function(){
+  $('#loading span').html('Reading OData endpoint&hellip;')
   $.ajax({
     url: '../cgi-bin/odata',
     dataType: 'xml'
@@ -55,6 +58,9 @@ var showEndpoints = function(){
       var url = $(this).attr('href')
       $('#feeds').append('<div><h2>' + table + '</h2><input type="text" value="' + url + '"></div>')
     })
+  }).fail(function(jqXHR){
+      $('#error').show().children('span').html('OData endpoint failed to respond:<br/>' + jqXHR.status + ' ' + jqXHR.statusText)
+      $('#loading').hide()
   })
 }
 
@@ -62,11 +68,11 @@ $(function(){
   readUrl().done(function(currentUrl){
     if($.trim(currentUrl) == ''){
       $('#loading span').html('Installing OData endpoint&hellip;')
-      $.when(saveUrl(), pipInstall()).then(function(firstResolution, secondResolution){
+      $.when(saveUrl(), pipInstall()).then(function(){
         showEndpoints()
-      }, function(firstRejection, secondRejection){
-        var $details = $('<pre>').html('<b>' + firstRejection + '</b><br/><br/>' + secondRejection)
-        $('#error').show().append($details)
+      }, function(errorMessage, errorDetails){
+        console.log(errorDetails)
+        $('#error').show().children('span').text('OData installation failed:<br/>' + errorMessage)
         $('#loading').hide()
       })
     } else {

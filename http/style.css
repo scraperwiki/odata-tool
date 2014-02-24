@@ -8,13 +8,23 @@ body {
   display: none;
 }
 
-#loading {
+#loading, #error {
   margin-top: 50px;
 }
 
-#loading img {
+#loading img, #error img {
   vertical-align: -2px;
   margin-right: 5px;
+}
+
+#error span {
+  display: block;
+  margin-top: 5px;
+}
+
+#error .btn {
+  color: inherit;
+  margin-top: 10px;
 }
 
 #feeds {
