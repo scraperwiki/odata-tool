@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<feed xml:base="{{ base_url }}" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns="http://www.w3.org/2005/Atom">
+<feed xml:base="https://{{ api_server }}{{ api_path }}" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns="http://www.w3.org/2005/Atom">
   <title type="text">{{ collection }}</title>
-  <id>{{ base_url }}</id>
+  <id>https://{{ api_server }}{{ api_path }}/{{ collection }}</id>
   <updated>2014-02-19T14:13:38Z</updated>
-  <link rel="self" title="{{ collection }}" href="{{ base_url }}" />
+  <link rel="self" title="{{ collection }}" href="https://{{ api_server }}{{ api_path }}/{{ collection }}" />
   {% for entry in entries %}
   <entry>
-    <id>{{ entry.url }}</id>
+    <id>https://{{ api_server }}{{ api_path }}/{{ collection }}({{ entry.rowid }})</id>
     <title type="text"></title>
     <updated>2014-02-19T14:13:38Z</updated>
     <author>
@@ -26,7 +26,7 @@
     </content>
   </entry>
   {% endfor %}
-  {% if next_url %}
-  <link rel="next" href="{{ next_url|safe }}" />
+  {% if next_query_string %}
+  <link rel="next" href="https://{{ api_server }}{{ api_path }}/{{ collection }}{{ next_query_string|safe }}" />
   {% endif %}
 </feed>

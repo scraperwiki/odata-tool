@@ -18,20 +18,16 @@ app = Flask(__name__)
 # URL is requested without a final slash
 app.url_map.strict_slashes = False
 
-# Get the "root" url path, because
-# Flask isn't running at the domain root
-path = os.environ.get('PATH_INFO', '/toolid/token/cgi-bin/odata')
-root = '/'.join(path.split('/')[0:5])
-
 # Stop extra whitespace creeping
 # into Jinja templates
 app.jinja_env.trim_blocks = True
 app.jinja_env.lstrip_blocks = True
 
-request_url = 'https://{}{}'.format(
-    os.environ.get('HTTP_HOST', 'server.scraperwiki.com'),
-    os.environ.get('PATH_INFO', '/toolid/token/cgi-bin/odata')
-)
+# Get the "root" url path, because
+# Flask isn't running at the domain root
+request_path = os.environ.get('PATH_INFO', '/toolid/token/cgi-bin/odata')
+api_path = '/'.join(request_path.split('/')[0:5])
+api_server = os.environ.get('HTTP_HOST', 'server.scraperwiki.com')
 
 def get_dataset_url():
     try:
@@ -40,20 +36,24 @@ def get_dataset_url():
     except IOError:
         return None
 
-
 dataset_url = get_dataset_url()
 
 
-@app.route(root + "/")
+@app.route(api_path + "/")
 def show_collections():
     tables = get_tables('{}/sql/meta'.format(dataset_url))
     resp = Response()
-    resp.headers['Content-Type'] = b'application/xml;charset=utf-8'
-    resp.data = render_template('collections.xml', base_url=request_url, collections=tables)
+    resp.headers[b'Content-Type'] = b'application/xml;charset=utf-8'
+    resp.data = render_template(
+        'collections.xml',
+        api_server=api_server,
+        api_path=api_path,
+        collections=tables
+    )
     return resp
 
 
-@app.route(root + "/<collection>/")
+@app.route(api_path + "/<collection>/")
 def show_collection(collection):
 
     # Handle pagination
@@ -83,20 +83,21 @@ def show_collection(collection):
 
     # Add pagination links if required
     if len(entries) != limit:
-        next_url = None
+        next_query_string = ''
     elif request.args.get('$skiptoken'):
-        next_url = '{}?$skiptoken={}'.format(request_url, entries[-1]['rowid'])
+        next_query_string = '?$skiptoken={}'.format(entries[-1]['rowid'])
     else:
-        next_url = '{}?$top={}&$skip={}'.format(request_url, limit, limit + offset)
+        next_query_string = '?$top={}&$skip={}'.format(limit, limit + offset)
 
     resp = Response()
-    resp.headers['Content-Type'] = b'application/xml;charset=utf-8'
+    resp.headers[b'Content-Type'] = b'application/xml;charset=utf-8'
     resp.data = render_template(
         'collection.xml',
-        base_url=request_url,
+        api_server=api_server,
+        api_path=api_path,
         collection=collection,
         entries=entries,
-        next_url=next_url
+        next_query_string=next_query_string
     )
     return resp
 
@@ -128,7 +129,6 @@ def get_entries_in_collection(url, collection, limit=100, offset=0, rowid=None):
     entries = []
     for row in rows:
         entries.append({
-            'url': "{}({})".format(request_url, row['rowid']),
             'rowid': row['rowid'],
             'cells': get_cells_in_row(row)
         })
@@ -193,4 +193,10 @@ if __name__ == "__main__":
     logger.setLevel(logging.INFO)
     app.logger.addHandler(hdlr)
 
-    CGIHandler().run(app)
+    logger.info('about to run CGIHandler')
+    logger.info('os.environ = {}'.format(os.environ))
+
+    try:
+        CGIHandler().run(app)
+    except Exception, e:
+        logger.exception("Something went wrong")

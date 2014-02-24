@@ -49,7 +49,6 @@ class CgiTestCase(unittest.TestCase):
     def test_show_collection_returns_valid_xml(self):
         with mock.patch('odata.get_entries_in_collection') as get_entries:
             get_entries.return_value = [{
-                'url': 'http://server.scraperwiki.com/toolid/token/cgi-bin/odata/tweets(1)',
                 'rowid': 1,
                 'cells': [{
                     'column': 'id',
@@ -68,7 +67,6 @@ class CgiTestCase(unittest.TestCase):
     def test_show_collection_returns_the_right_cell_values(self):
         with mock.patch('odata.get_entries_in_collection') as get_entries:
             get_entries.return_value = [{
-                'url': 'http://server.scraperwiki.com/toolid/token/cgi-bin/odata/tweets(1)',
                 'rowid': 1,
                 'cells': [{
                     'column': 'id',
@@ -90,7 +88,6 @@ class CgiTestCase(unittest.TestCase):
     def test_show_collection_can_be_paginated(self):
         with mock.patch('odata.get_entries_in_collection') as get_entries:
             get_entries.return_value = [{
-                'url': 'http://server.scraperwiki.com/toolid/token/cgi-bin/odata/tweets(1)',
                 'rowid': 1,
                 'cells': []
             }]
