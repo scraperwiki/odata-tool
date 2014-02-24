@@ -27,6 +27,6 @@
   </entry>
   {% endfor %}
   {% if next_query_string %}
-  <link rel="next" href="https://{{ api_server }}{{ api_path }}/{{ collection }}{{ next_query_string|safe }}" />
+  <link rel="next" href="https://{{ api_server }}{{ api_path }}/{{ collection }}{{ next_query_string }}" />
   {% endif %}
 </feed>
