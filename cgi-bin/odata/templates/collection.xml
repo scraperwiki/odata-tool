@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <feed xml:base="{{ base_url }}" xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns="http://www.w3.org/2005/Atom">
   <title type="text">{{ collection }}</title>
-  <id>{{ base_url }}/{{ collection }}</id>
+  <id>{{ base_url }}</id>
   <updated>2014-02-19T14:13:38Z</updated>
   <link rel="self" title="{{ collection }}" href="{{ base_url }}" />
   {% for entry in entries %}

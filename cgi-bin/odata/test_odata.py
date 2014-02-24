@@ -94,7 +94,18 @@ class CgiTestCase(unittest.TestCase):
                 'rowid': 1,
                 'cells': []
             }]
-            response = self.app.get('/box/token/cgi-bin/odata/tweets?$skip=100')
-        dom = lxml.html.fromstring(response.data)
-        get_entries.assert_called_with(mock.ANY, mock.ANY, limit=100, offset=100)
+            self.app.get('/box/token/cgi-bin/odata/tweets?$skip=100')
+        get_entries.assert_called_with(mock.ANY, mock.ANY, limit=100, offset=100, rowid=None)
+
+    def test_we_can_request_a_single_entry_by_its_rowid(self):
+        with mock.patch('odata.get_entries_in_collection') as get_entries:
+            self.app.get('/box/token/cgi-bin/odata/tweets(13)')
+        get_entries.assert_called_with(mock.ANY, 'tweets', limit=100, offset=0, rowid=13)
+
+    def test_single_entry_queries_are_properly_requested(self):
+        query = 'SELECT rowid, * FROM "tweets" WHERE rowid=13 LIMIT 100 OFFSET 0'
+        with mock.patch('requests.get') as requests_get:
+            odata.get_entries_in_collection('http://example.com/sql', 'tweets', rowid=13)
+        args = requests_get.call_args
+        assert_equal(args[1]['params']['q'], query)
 

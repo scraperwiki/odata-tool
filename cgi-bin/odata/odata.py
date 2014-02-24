@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 import logging
 import requests
 from logging import FileHandler
 from wsgiref.handlers import CGIHandler
 import os
+import re
 
 from flask import Flask, Response, render_template, request
 
@@ -45,25 +48,37 @@ dataset_url = get_dataset_url()
 def show_collections():
     tables = get_tables('{}/sql/meta'.format(dataset_url))
     resp = Response()
-    resp.headers['Content-Type'] = 'application/xml;charset=utf-8'
+    resp.headers['Content-Type'] = b'application/xml;charset=utf-8'
     resp.data = render_template('collections.xml', base_url=request_url, collections=tables)
     return resp
 
 
 @app.route(root + "/<collection>/")
 def show_collection(collection):
+
+    # Handle pagination
     if request.args.get('$skiptoken'):
         limit = 100
         offset = int(request.args.get('$skiptoken'))
     else:
         limit = int(request.args.get('$top', 100))
         offset = int(request.args.get('$skip', 0))
+
+    # Handle specific row requests
+    rowid_match = re.search(r'^(.*)[(](\d+)[)]$', collection)
+    if rowid_match:
+        collection = rowid_match.group(1)
+        rowid = int(rowid_match.group(2))
+    else:
+        rowid = None
+
     # TODO: check that `collection` table actually exists
     entries = get_entries_in_collection(
         '{}/sql'.format(dataset_url),
         collection,
         limit=limit,
-        offset=offset
+        offset=offset,
+        rowid=rowid
     )
     if len(entries) != limit:
         next_url = None
@@ -72,7 +87,7 @@ def show_collection(collection):
     else:
         next_url = '{}?$top={}&$skip={}'.format(request_url, limit, limit + offset)
     resp = Response()
-    resp.headers['Content-Type'] = 'application/xml;charset=utf-8'
+    resp.headers['Content-Type'] = b'application/xml;charset=utf-8'
     resp.data = render_template('collection.xml', base_url=request_url, collection=collection, entries=entries, next_url=next_url)
     return resp
 
@@ -86,17 +101,25 @@ def get_tables(url):
     return meta['table'].keys()
 
 
-def get_entries_in_collection(url, collection, limit=100, offset=0):
-    query = 'SELECT rowid, * FROM "{collection}" LIMIT {limit} OFFSET {offset}'.format(
-        collection=collection,
-        limit=limit,
-        offset=offset
-    )
+def get_entries_in_collection(url, collection, limit=100, offset=0, rowid=None):
+    if rowid:
+        query = 'SELECT rowid, * FROM "{collection}" WHERE rowid={rowid} LIMIT {limit} OFFSET {offset}'.format(
+            collection=collection,
+            limit=limit,
+            offset=offset,
+            rowid=rowid
+        )
+    else:
+        query = 'SELECT rowid, * FROM "{collection}" LIMIT {limit} OFFSET {offset}'.format(
+            collection=collection,
+            limit=limit,
+            offset=offset
+        )
     rows = requests.get(url, params={'q': query}).json()
     entries = []
     for row in rows:
         entries.append({
-            'url': u"{}({})".format(request_url, row['rowid']),
+            'url': "{}({})".format(request_url, row['rowid']),
             'rowid': row['rowid'],
             'cells': get_cells_in_row(row)
         })
