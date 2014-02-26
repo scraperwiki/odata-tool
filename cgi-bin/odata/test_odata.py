@@ -8,6 +8,7 @@ import mock
 import os
 import lxml.html
 
+from collections import OrderedDict
 from nose.tools import *
 from flask import Response
 
@@ -57,16 +58,56 @@ class CgiTestCase(unittest.TestCase):
         assert_equal(dom.cssselect('title')[1].text_content(), 'tweets')
         assert_equal(dom.cssselect('title')[2].text_content(), '__status')
 
+    def test_get_cells_in_row_escapes_columns_names(self):
+        row = OrderedDict([
+            ("""with spaces""", 1),
+            ("""with'punc"tuation""", 2),
+            ("""dashes-and_hyphens""", 3),
+            ("""0startsWithANumber""", 4),
+            ("""xmlAtStart""", 5),
+            ("""_underscoreAtStart""", 6)
+        ])
+        cells = odata.get_cells_in_row(row)
+        assert_equals(cells[0]['column'], """with spaces""")
+        assert_equals(cells[0]['column_safe'], 'withSpaces')
+        assert_equals(cells[1]['column'], """with'punc"tuation""")
+        assert_equals(cells[1]['column_safe'], 'withpunctuation')
+        assert_equals(cells[2]['column'], """dashes-and_hyphens""")
+        assert_equals(cells[2]['column_safe'], 'dashesAndHyphens')
+        assert_equals(cells[3]['column'], """0startsWithANumber""")
+        assert_equals(cells[3]['column_safe'], 'x0startsWithANumber')
+        assert_equals(cells[4]['column'], """xmlAtStart""")
+        assert_equals(cells[4]['column_safe'], 'xxmlAtStart')
+        assert_equals(cells[5]['column'], """_underscoreAtStart""")
+        assert_equals(cells[5]['column_safe'], 'xUnderscoreAtStart')
+
+    @mock.patch('odata.get_entries_in_collection')
+    def test_show_collection_uses_escaped_column_names(self, get_entries):
+        get_entries.return_value = [{
+            'rowid': 1,
+            'cells': [{
+                'column': 'my favourite column',
+                'column_safe': 'myFavouriteColumn',
+                'value': 12345678910,
+                'type': 'Edm.Int64'
+            }]
+        }]
+        response = self.app.get('/toolid/token/cgi-bin/odata/tweets')
+        dom = lxml.html.fromstring(response.data)
+        assert_equal(len(dom.cssselect('myFavouriteColumn')), 1)
+
     @mock.patch('odata.get_entries_in_collection')
     def test_show_collection_returns_valid_xml(self, get_entries):
         get_entries.return_value = [{
             'rowid': 1,
             'cells': [{
                 'column': 'id',
+                'column_safe': 'id',
                 'value': 12345678910,
                 'type': 'Edm.Int64'
             }, {
                 'column': 'text',
+                'column_safe': 'text',
                 'value': 'An example cell value',
                 'type': 'Edm.String'
             }]
@@ -81,10 +122,12 @@ class CgiTestCase(unittest.TestCase):
             'rowid': 1,
             'cells': [{
                 'column': 'id',
+                'column_safe': 'id',
                 'value': 12345678910,
                 'type': 'Edm.Int64'
             }, {
                 'column': 'text',
+                'column_safe': 'text',
                 'value': 'An example cell value',
                 'type': 'Edm.String'
             }]

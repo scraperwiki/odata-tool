@@ -153,10 +153,36 @@ def get_cells_in_row(row):
     for column, value in row.iteritems():
         cells.append({
             'column': column,
+            'column_safe': escape_column_name(column),
             'value': format_cell_value(value),
             'type': get_cell_type(value)
         })
     return cells
+
+
+def escape_column_name(name):
+    # returns a version of `name` that is
+    # safe to use in as an XML tag name
+    if re.match(r'([^a-z]|xml)', name, flags=re.IGNORECASE):
+        safe_name = 'x'
+    else:
+        safe_name = ''
+    capitalise_next = False
+    for char in name:
+        if char in ' -_=()[]}{|+&':
+            # ignore this character,
+            # and capitalise the next one
+            capitalise_next = True
+        elif char in '"\'':
+            # just ignore this character
+            pass
+        else:
+            if capitalise_next:
+                safe_name += char.upper()
+                capitalise_next = False
+            else:
+                safe_name += char
+    return safe_name
 
 
 def format_cell_value(value):

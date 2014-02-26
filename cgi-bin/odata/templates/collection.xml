@@ -17,9 +17,9 @@
       <m:properties>
         {% for cell in entry.cells %}
         {% if cell.value is none %}
-        <d:{{ cell.column }} m:type="{{ cell.type }}" m:null="true" />
+        <d:{{ cell.column_safe }} m:type="{{ cell.type }}" m:null="true" />
         {% else %}
-        <d:{{ cell.column }} m:type="{{ cell.type }}">{{ cell.value }}</d:{{ cell.column }}>
+        <d:{{ cell.column_safe }} m:type="{{ cell.type }}">{{ cell.value }}</d:{{ cell.column_safe }}>
         {% endif %}
         {% endfor %}
       </m:properties>
