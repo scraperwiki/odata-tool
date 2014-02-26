@@ -137,9 +137,29 @@ class TypeDetectionTestCase(unittest.TestCase):
         assert_equal(t, 'Edm.Null')
 
     def test_that_empty_strings_are_correctly_detected(self):
-        t = odata.get_cell_type(b'')
+        t = odata.get_cell_type(b'') # we've imported unicode_literals so we need to force byte encoding here
         assert_equal(t, 'Edm.String')
 
     def test_that_unicode_strings_are_correctly_detected(self):
-        t = odata.get_cell_type(u'I ♥ unicode')
+        t = odata.get_cell_type('I ♥ unicode')
         assert_equal(t, 'Edm.String')
+
+    def test_that_iso_dates_are_correctly_detected(self):
+        t = odata.get_cell_type('2014-02-20T08:31:25Z')
+        assert_equal(t, 'Edm.DateTime')
+
+    def test_that_messy_iso_dates_are_correctly_detected(self):
+        t = odata.get_cell_type('2014-02-20 08:31:25+00:00')
+        assert_equal(t, 'Edm.DateTime')
+
+    def test_that_nonstandard_dates_are_correctly_detected(self):
+        t = odata.get_cell_type('Sat, 07 Sep 2002 00:00:01 GMT')
+        assert_equal(t, 'Edm.DateTime')
+
+    def test_that_standalone_dates_are_correctly_detected(self):
+        t = odata.get_cell_type('2014/01/30')
+        assert_equal(t, 'Edm.DateTime')
+
+    def test_that_standalone_times_are_correctly_detected(self):
+        t = odata.get_cell_type('13:00')
+        assert_equal(t, 'Edm.DateTime')

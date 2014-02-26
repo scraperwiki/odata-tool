@@ -3,14 +3,15 @@
 
 from __future__ import unicode_literals
 
+import dateutil.parser
 import logging
-import requests
-from logging import FileHandler
-from wsgiref.handlers import CGIHandler
 import os
 import re
+import requests
 
 from flask import Flask, Response, render_template, request
+from logging import FileHandler
+from wsgiref.handlers import CGIHandler
 
 app = Flask(__name__)
 
@@ -185,11 +186,14 @@ def get_cell_type(value):
         else:
             return 'Edm.Int64'
     elif isinstance(value, (str, unicode)):
-        try:
-            dateutil.parser.parse(value)
-            return 'Edm.DateTime'
-        except:
+        if value == '':
             return 'Edm.String'
+        else:
+            try:
+                dateutil.parser.parse(value)
+                return 'Edm.DateTime'
+            except:
+                return 'Edm.String'
     else:
         return 'Edm.String'
 
