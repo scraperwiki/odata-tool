@@ -57,6 +57,14 @@ def show_collections():
 @app.route(api_path + "/<collection>/")
 def show_collection(collection):
 
+    # Handle specific row requests
+    rowid_match = re.search(r'^(.*)[(](\d+)[)]$', collection)
+    if rowid_match:
+        collection = rowid_match.group(1)
+        rowid = int(rowid_match.group(2))
+    else:
+        rowid = None
+
     # Check that the table exists
     tables = get_tables('{}/sql/meta'.format(dataset_url))
     if collection not in tables:
@@ -75,14 +83,6 @@ def show_collection(collection):
     else:
         limit = int(request.args.get('$top', 100))
         offset = int(request.args.get('$skip', 0))
-
-    # Handle specific row requests
-    rowid_match = re.search(r'^(.*)[(](\d+)[)]$', collection)
-    if rowid_match:
-        collection = rowid_match.group(1)
-        rowid = int(rowid_match.group(2))
-    else:
-        rowid = None
 
     entries = get_entries_in_collection(
         '{}/sql'.format(dataset_url),
