@@ -175,6 +175,8 @@ def format_cell_value(value):
 def get_cell_type(value):
     if value is None:
         return 'Edm.Null'
+    elif isinstance(value, bool):
+        return 'Edm.Boolean'
     elif isinstance(value, float):
         return 'Edm.Double'
     elif isinstance(value, int):
@@ -182,15 +184,12 @@ def get_cell_type(value):
             return 'Edm.Int32'
         else:
             return 'Edm.Int64'
-    elif isinstance(value, bool):
-        return 'Edm.Boolean'
     elif isinstance(value, (str, unicode)):
         try:
             dateutil.parser.parse(value)
+            return 'Edm.DateTime'
         except:
             return 'Edm.String'
-        else:
-            return 'Edm.DateTime'
     else:
         return 'Edm.String'
 

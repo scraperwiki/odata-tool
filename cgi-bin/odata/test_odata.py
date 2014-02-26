@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals
 import sys
 import unittest
@@ -110,3 +112,34 @@ class CgiTestCase(unittest.TestCase):
         args = requests_get.call_args
         assert_equal(args[1]['params']['q'], query)
 
+class TypeDetectionTestCase(unittest.TestCase):
+
+    def test_that_booleans_are_correctly_detected(self):
+        t1 = odata.get_cell_type(True)
+        assert_equal(t1, 'Edm.Boolean')
+        t2 = odata.get_cell_type(False)
+        assert_equal(t2, 'Edm.Boolean')
+
+    def test_that_integers_are_correctly_detected(self):
+        t = odata.get_cell_type(13)
+        assert_equal(t, 'Edm.Int32')
+
+    def test_that_64bit_integers_are_correctly_detected(self):
+        t = odata.get_cell_type(4294967296)
+        assert_equal(t, 'Edm.Int64')
+
+    def test_that_decimals_are_correctly_detected(self):
+        t = odata.get_cell_type(3.14159265)
+        assert_equal(t, 'Edm.Double')
+
+    def test_that_nones_are_correctly_detected(self):
+        t = odata.get_cell_type(None)
+        assert_equal(t, 'Edm.Null')
+
+    def test_that_empty_strings_are_correctly_detected(self):
+        t = odata.get_cell_type(b'')
+        assert_equal(t, 'Edm.String')
+
+    def test_that_unicode_strings_are_correctly_detected(self):
+        t = odata.get_cell_type(u'I ♥ unicode')
+        assert_equal(t, 'Edm.String')
