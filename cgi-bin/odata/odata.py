@@ -78,10 +78,10 @@ def show_collection(collection):
 
     # Handle pagination
     if request.args.get('$skiptoken'):
-        limit = 100
+        limit = 500
         offset = int(request.args.get('$skiptoken'))
     else:
-        limit = int(request.args.get('$top', 100))
+        limit = int(request.args.get('$top', 500))
         offset = int(request.args.get('$skip', 0))
 
     entries = get_entries_in_collection(
@@ -122,7 +122,7 @@ def get_tables(url):
     return meta['table'].keys()
 
 
-def get_entries_in_collection(url, collection, limit=100, offset=0, rowid=None):
+def get_entries_in_collection(url, collection, limit=500, offset=0, rowid=None):
     if rowid:
         query = 'SELECT rowid, * FROM "{collection}" WHERE rowid={rowid} LIMIT {limit} OFFSET {offset}'.format(
             collection=collection,

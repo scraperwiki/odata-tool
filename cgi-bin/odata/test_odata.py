@@ -146,16 +146,16 @@ class CgiTestCase(unittest.TestCase):
             'cells': []
         }]
         self.app.get('/toolid/token/cgi-bin/odata/tweets?$skip=100')
-        get_entries.assert_called_with(mock.ANY, mock.ANY, limit=100, offset=100, rowid=None)
+        get_entries.assert_called_with(mock.ANY, mock.ANY, limit=500, offset=100, rowid=None)
 
     @mock.patch('odata.get_entries_in_collection')
     def test_we_can_request_a_single_entry_by_its_rowid(self, get_entries):
         self.app.get('/toolid/token/cgi-bin/odata/tweets(13)')
-        get_entries.assert_called_with(mock.ANY, 'tweets', limit=100, offset=0, rowid=13)
+        get_entries.assert_called_with(mock.ANY, 'tweets', limit=500, offset=0, rowid=13)
 
     @mock.patch('requests.get')
     def test_single_entry_queries_are_properly_requested(self, requests_get):
-        query = 'SELECT rowid, * FROM "tweets" WHERE rowid=13 LIMIT 100 OFFSET 0'
+        query = 'SELECT rowid, * FROM "tweets" WHERE rowid=13 LIMIT 500 OFFSET 0'
         odata.get_entries_in_collection(
             'http://server.scraperwiki.com/datasetid/token/sql',
             'tweets',
