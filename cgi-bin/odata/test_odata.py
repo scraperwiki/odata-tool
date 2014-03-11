@@ -177,6 +177,10 @@ class TypeDetectionTestCase(unittest.TestCase):
         t = odata.get_cell_type(13)
         assert_equal(t, 'Edm.Int32')
 
+    def test_that_numeric_strings_are_correctly_detected(self):
+        t = odata.get_cell_type('13')
+        assert_equal(t, 'Edm.String')
+
     def test_that_64bit_integers_are_correctly_detected(self):
         t = odata.get_cell_type(4294967296)
         assert_equal(t, 'Edm.Int64')
@@ -216,3 +220,15 @@ class TypeDetectionTestCase(unittest.TestCase):
     def test_that_standalone_times_are_correctly_detected(self):
         t = odata.get_cell_type('13:00')
         assert_equal(t, 'Edm.DateTime')
+
+    def test_that_dashes_are_correctly_detected(self):
+        t = odata.get_cell_type('-')
+        assert_equal(t, 'Edm.String')
+
+    def test_that_spaces_are_correctly_detected(self):
+        t = odata.get_cell_type(' ')
+        assert_equal(t, 'Edm.String')
+
+    def test_that_single_quotes_are_correctly_detected(self):
+        t = odata.get_cell_type("'")
+        assert_equal(t, 'Edm.String')

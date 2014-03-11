@@ -212,16 +212,34 @@ def get_cell_type(value):
         else:
             return 'Edm.Int64'
     elif isinstance(value, (str, unicode)):
-        if value == '':
+        if value in " -'":
+            return 'Edm.String'
+        elif is_stringy_integer(value):
+            return 'Edm.String'
+        elif is_stringy_float(value):
             return 'Edm.String'
         else:
             try:
                 dateutil.parser.parse(value)
                 return 'Edm.DateTime'
-            except:
+            except Exception:
                 return 'Edm.String'
     else:
         return 'Edm.String'
+
+def is_stringy_integer(value):
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
+
+def is_stringy_float(value):
+    try:
+        float(value)
+        return True
+    except Exception:
+        return False
 
 
 if __name__ == "__main__":
