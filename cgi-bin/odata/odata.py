@@ -188,7 +188,7 @@ def escape_column_name(name):
 def format_cell_value(value):
     # Jinja gets this mostly right, so we
     # only have to check for date formatting
-    if isinstance(value, (str, unicode)):
+    if is_datey(value):
         try:
             datetime = dateutil.parser.parse(value)
         except:
@@ -211,21 +211,29 @@ def get_cell_type(value):
             return 'Edm.Int32'
         else:
             return 'Edm.Int64'
-    elif isinstance(value, (str, unicode)):
+    elif is_datey(value):
+        return 'Edm.DateTime'
+    else:
+        return 'Edm.String'
+
+
+def is_datey(value):
+    if isinstance(value, (str, unicode)):
         if value in " -'":
-            return 'Edm.String'
+            return False
         elif is_stringy_integer(value):
-            return 'Edm.String'
+            return False
         elif is_stringy_float(value):
-            return 'Edm.String'
+            return False
         else:
             try:
                 dateutil.parser.parse(value)
-                return 'Edm.DateTime'
+                return True
             except Exception:
-                return 'Edm.String'
+                return False
     else:
-        return 'Edm.String'
+        return False
+
 
 def is_stringy_integer(value):
     try:
