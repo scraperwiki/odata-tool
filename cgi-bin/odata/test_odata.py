@@ -65,7 +65,8 @@ class CgiTestCase(unittest.TestCase):
             ("""dashes-and_hyphens""", 3),
             ("""0startsWithANumber""", 4),
             ("""xmlAtStart""", 5),
-            ("""_underscoreAtStart""", 6)
+            ("""_underscoreAtStart""", 6),
+            ("""with a / slash""", 7),
         ])
         cells = odata.get_cells_in_row(row)
         assert_equals(cells[0]['column'], """with spaces""")
@@ -80,6 +81,8 @@ class CgiTestCase(unittest.TestCase):
         assert_equals(cells[4]['column_safe'], 'xxmlAtStart')
         assert_equals(cells[5]['column'], """_underscoreAtStart""")
         assert_equals(cells[5]['column_safe'], 'xUnderscoreAtStart')
+        assert_equals(cells[6]['column'], """with a / slash""")
+        assert_equals(cells[6]['column_safe'], 'withASlash')
 
     @mock.patch('odata.get_entries_in_collection')
     def test_show_collection_uses_escaped_column_names(self, get_entries):

@@ -169,7 +169,7 @@ def escape_column_name(name):
         safe_name = ''
     capitalise_next = False
     for char in name:
-        if char in ' -_=()[]}{|+&':
+        if char in ' -_=()[]}{|+&/\\':
             # ignore this character,
             # and capitalise the next one
             capitalise_next = True
