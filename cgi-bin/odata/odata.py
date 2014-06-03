@@ -12,6 +12,7 @@ import requests
 from flask import Flask, Response, render_template, request
 from logging import FileHandler
 from wsgiref.handlers import CGIHandler
+logger = logging.getLogger('odata')
 
 HOME = os.environ.get("HOME", "/home")
 
@@ -262,7 +263,6 @@ def isfloat(value):
 
 if __name__ == "__main__":
     # Log exceptions to http/log.txt
-    logger = logging.getLogger('odata')
     hdlr = logging.FileHandler(HOME + '/http/log.txt')
     logger.addHandler(hdlr)
     logger.setLevel(logging.INFO)
