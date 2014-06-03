@@ -118,6 +118,7 @@ def show_collection(collection):
 def get_tables(url):
     req = requests.get(url)
     if req.status_code != 200:
+        logger.warning("Unable to get_tables(): {.status_code}".format(req))
         return None
     meta = req.json()
     return meta['table'].keys()
