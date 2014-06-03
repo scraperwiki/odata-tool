@@ -33,7 +33,7 @@ api_server = os.environ.get('HTTP_HOST', 'server.scraperwiki.com')
 def get_dataset_url():
     try:
         with open('/home/dataset_url.txt', 'r') as file:
-            return file.read()
+            return file.read().strip()
     except IOError:
         return None
 
@@ -43,6 +43,8 @@ dataset_url = get_dataset_url()
 @app.route(api_path + "/")
 def show_collections():
     tables = get_tables('{}/sql/meta'.format(dataset_url))
+    if tables is None:
+        return Response("Error reading tables", 500)
     resp = Response()
     resp.headers[b'Content-Type'] = b'application/xml;charset=utf-8'
     resp.data = render_template(
@@ -114,11 +116,11 @@ def show_collection(collection):
 
 
 def get_tables(url):
-    try:
-        req = requests.get(url)
-        meta = req.json()
-    except:
-        meta = {'table': {}}
+    req = requests.get(url)
+    if req.status_code != 200:
+        logger.warning("Unable to get_tables(): {.status_code}".format(req))
+        return None
+    meta = req.json()
     return meta['table'].keys()
 
 
