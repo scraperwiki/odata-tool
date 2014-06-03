@@ -8,12 +8,27 @@ import logging
 import os
 import re
 import requests
+import sys
+
+from os.path import join
 
 from flask import Flask, Response, render_template, request
 from logging import FileHandler
 from wsgiref.handlers import CGIHandler
+logger = logging.getLogger('odata')
+
+if os.environ.get("USE_REQUESTS_CACHE"):
+    import requests_cache
+    requests_cache.install_cache('temp_cache')
+
+HOME = os.environ.get("HOME", "/home")
 
 app = Flask(__name__)
+
+if "pyprof2calltree" in sys.modules["__main__"].__file__:
+    # Workaround for pyprof2calltree so that we can find the templates/
+    # directory. Assumes you're running with $PWD = $(basename $THISFILE)
+    app.root_path = "."
 
 # Avoid default Flask redirect when a
 # URL is requested without a final slash
@@ -30,9 +45,10 @@ request_path = os.environ.get('PATH_INFO', '/toolid/token/cgi-bin/odata')
 api_path = '/'.join(request_path.split('/')[0:5])
 api_server = os.environ.get('HTTP_HOST', 'server.scraperwiki.com')
 
+
 def get_dataset_url():
     try:
-        with open('/home/dataset_url.txt', 'r') as file:
+        with open(join(HOME, "dataset_url.txt"), "r") as file:
             return file.read().strip()
     except IOError:
         return None
@@ -74,7 +90,8 @@ def show_collection(collection):
         resp.headers[b'Content-Type'] = b'application/xml;charset=utf-8'
         resp.data = render_template(
             'error.xml',
-            message="Resource not found for the segment '{}'.".format(collection)
+            message="Resource not found for the segment '{}'.".format(
+                collection)
         )
         return resp
 
@@ -124,16 +141,20 @@ def get_tables(url):
     return meta['table'].keys()
 
 
-def get_entries_in_collection(url, collection, limit=500, offset=0, rowid=None):
+def get_entries_in_collection(url, collection, limit=500, offset=0,
+                              rowid=None):
     if rowid:
-        query = 'SELECT rowid, * FROM "{collection}" WHERE rowid={rowid} LIMIT {limit} OFFSET {offset}'.format(
+        Q = ('SELECT rowid, * FROM "{collection}" '
+             'WHERE rowid={rowid} LIMIT {limit} OFFSET {offset}')
+        query = Q.format(
             collection=collection,
             limit=limit,
             offset=offset,
             rowid=rowid
         )
     else:
-        query = 'SELECT rowid, * FROM "{collection}" LIMIT {limit} OFFSET {offset}'.format(
+        Q = 'SELECT rowid, * FROM "{collection}" LIMIT {limit} OFFSET {offset}'
+        query = Q.format(
             collection=collection,
             limit=limit,
             offset=offset
@@ -162,6 +183,19 @@ def get_cells_in_row(row):
     return cells
 
 
+def memoize(func):
+    cache = {}
+    import functools
+
+    @functools.wraps(func)
+    def memoized(*args):
+        if args not in cache:
+            cache[args] = func(*args)
+        return cache[args]
+    return memoized
+
+
+@memoize
 def escape_column_name(name):
     # returns a version of `name` that is
     # safe to use in as an XML tag name
@@ -218,44 +252,50 @@ def get_cell_type(value):
     else:
         return 'Edm.String'
 
+DATELIKE_RE = re.compile(
+    "\d{2}(?:\d{2})?[/-]?\d{1,2}[/-]?\d{1,2}"  # date
+    "[T ]"
+    "\d{2}:?\d{2}(?::?\d{2})?"  # time
+    "(?:Z|[-+]\d{2}(:?\d{2})?)?"  # timezone
+)
+
 
 def is_datey(value):
-    if isinstance(value, (str, unicode)):
-        if value in " -'":
-            return False
-        elif is_stringy_integer(value):
-            return False
-        elif is_stringy_float(value):
-            return False
-        else:
-            try:
-                dateutil.parser.parse(value)
-                return True
-            except Exception:
-                return False
-    else:
+    if not isinstance(value, (str, unicode)):
         return False
 
+    if value in " -'":
+        return False
+    elif isint(value):
+        return False
+    elif isfloat(value):
+        return False
 
-def is_stringy_integer(value):
+    if DATELIKE_RE.match(value) is not None:
+        return True
+
+    return False
+
+
+def isint(value):
     try:
         int(value)
         return True
     except ValueError:
         return False
 
-def is_stringy_float(value):
+
+def isfloat(value):
     try:
         float(value)
         return True
-    except Exception:
+    except ValueError:
         return False
 
 
 if __name__ == "__main__":
     # Log exceptions to http/log.txt
-    logger = logging.getLogger('odata')
-    hdlr = logging.FileHandler('/home/http/log.txt')
+    hdlr = logging.FileHandler(join(HOME, "http", "log.txt"))
     logger.addHandler(hdlr)
     logger.setLevel(logging.INFO)
     app.logger.addHandler(hdlr)
