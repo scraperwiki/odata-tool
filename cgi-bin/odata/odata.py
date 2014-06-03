@@ -13,6 +13,8 @@ from flask import Flask, Response, render_template, request
 from logging import FileHandler
 from wsgiref.handlers import CGIHandler
 
+HOME = os.environ.get("HOME", "/home")
+
 app = Flask(__name__)
 
 # Avoid default Flask redirect when a
@@ -32,7 +34,7 @@ api_server = os.environ.get('HTTP_HOST', 'server.scraperwiki.com')
 
 def get_dataset_url():
     try:
-        with open('/home/dataset_url.txt', 'r') as file:
+        with open(HOME + '/dataset_url.txt', 'r') as file:
             return file.read().strip()
     except IOError:
         return None
@@ -261,7 +263,7 @@ def isfloat(value):
 if __name__ == "__main__":
     # Log exceptions to http/log.txt
     logger = logging.getLogger('odata')
-    hdlr = logging.FileHandler('/home/http/log.txt')
+    hdlr = logging.FileHandler(HOME + '/http/log.txt')
     logger.addHandler(hdlr)
     logger.setLevel(logging.INFO)
     app.logger.addHandler(hdlr)
