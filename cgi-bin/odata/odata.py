@@ -170,7 +170,17 @@ def get_cells_in_row(row):
         })
     return cells
 
+def memoize(func):
+    cache = {}
+    import functools
+    @functools.wraps(func)
+    def memoized(*args):
+        if args not in cache:
+            cache[args] = func(*args)
+        return cache[args]
+    return memoized
 
+@memoize
 def escape_column_name(name):
     # returns a version of `name` that is
     # safe to use in as an XML tag name
