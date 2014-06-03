@@ -213,6 +213,10 @@ class TypeDetectionTestCase(unittest.TestCase):
         t = odata.get_cell_type('2014-02-20 08:31:25+00:00')
         assert_equal(t, 'Edm.DateTime')
 
+    def test_that_messy_iso_dates_are_correctly_detected_negative_tz(self):
+        t = odata.get_cell_type('2014-02-20 08:31:25-00:00')
+        assert_equal(t, 'Edm.DateTime')
+
 
     # (pwaller): I disabled these because we decided that for simplicity we
     # will just match ISO-like times for now. We used to call datetime.parser
