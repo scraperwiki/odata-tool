@@ -15,6 +15,10 @@ from logging import FileHandler
 from wsgiref.handlers import CGIHandler
 logger = logging.getLogger('odata')
 
+if os.environ.get("USE_REQUESTS_CACHE"):
+    import requests_cache
+    requests_cache.install_cache('temp_cache')
+
 HOME = os.environ.get("HOME", "/home")
 
 app = Flask(__name__)
