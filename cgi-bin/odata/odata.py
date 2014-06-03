@@ -8,6 +8,7 @@ import logging
 import os
 import re
 import requests
+import sys
 
 from flask import Flask, Response, render_template, request
 from logging import FileHandler
@@ -17,6 +18,11 @@ logger = logging.getLogger('odata')
 HOME = os.environ.get("HOME", "/home")
 
 app = Flask(__name__)
+
+if "pyprof2calltree" in sys.modules["__main__"].__file__:
+    # Workaround for pyprof2calltree so that we can find the templates/
+    # directory. Assumes you're running with $PWD = $(basename $THISFILE)
+    app.root_path = "."
 
 # Avoid default Flask redirect when a
 # URL is requested without a final slash
