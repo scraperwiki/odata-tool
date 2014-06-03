@@ -45,6 +45,7 @@ request_path = os.environ.get('PATH_INFO', '/toolid/token/cgi-bin/odata')
 api_path = '/'.join(request_path.split('/')[0:5])
 api_server = os.environ.get('HTTP_HOST', 'server.scraperwiki.com')
 
+
 def get_dataset_url():
     try:
         with open(join(HOME, "dataset_url.txt"), "r") as file:
@@ -89,7 +90,8 @@ def show_collection(collection):
         resp.headers[b'Content-Type'] = b'application/xml;charset=utf-8'
         resp.data = render_template(
             'error.xml',
-            message="Resource not found for the segment '{}'.".format(collection)
+            message="Resource not found for the segment '{}'.".format(
+                collection)
         )
         return resp
 
@@ -139,16 +141,20 @@ def get_tables(url):
     return meta['table'].keys()
 
 
-def get_entries_in_collection(url, collection, limit=500, offset=0, rowid=None):
+def get_entries_in_collection(url, collection, limit=500, offset=0,
+                              rowid=None):
     if rowid:
-        query = 'SELECT rowid, * FROM "{collection}" WHERE rowid={rowid} LIMIT {limit} OFFSET {offset}'.format(
+        Q = ('SELECT rowid, * FROM "{collection}" '
+             'WHERE rowid={rowid} LIMIT {limit} OFFSET {offset}')
+        query = Q.format(
             collection=collection,
             limit=limit,
             offset=offset,
             rowid=rowid
         )
     else:
-        query = 'SELECT rowid, * FROM "{collection}" LIMIT {limit} OFFSET {offset}'.format(
+        Q = 'SELECT rowid, * FROM "{collection}" LIMIT {limit} OFFSET {offset}'
+        query = Q.format(
             collection=collection,
             limit=limit,
             offset=offset
@@ -176,15 +182,18 @@ def get_cells_in_row(row):
         })
     return cells
 
+
 def memoize(func):
     cache = {}
     import functools
+
     @functools.wraps(func)
     def memoized(*args):
         if args not in cache:
             cache[args] = func(*args)
         return cache[args]
     return memoized
+
 
 @memoize
 def escape_column_name(name):
@@ -243,14 +252,13 @@ def get_cell_type(value):
     else:
         return 'Edm.String'
 
-import re
-
 DATELIKE_RE = re.compile(
-    "\d{2}(?:\d{2})?[/-]?\d{1,2}[/-]?\d{1,2}" # date
+    "\d{2}(?:\d{2})?[/-]?\d{1,2}[/-]?\d{1,2}"  # date
     "[T ]"
-    "\d{2}:?\d{2}(?::?\d{2})?" # time
-    "(?:Z|[-+]\d{2}(:?\d{2})?)?" # timezone
+    "\d{2}:?\d{2}(?::?\d{2})?"  # time
+    "(?:Z|[-+]\d{2}(:?\d{2})?)?"  # timezone
 )
+
 
 def is_datey(value):
     if not isinstance(value, (str, unicode)):
@@ -268,12 +276,14 @@ def is_datey(value):
 
     return False
 
+
 def isint(value):
     try:
         int(value)
         return True
     except ValueError:
         return False
+
 
 def isfloat(value):
     try:
