@@ -33,7 +33,7 @@ api_server = os.environ.get('HTTP_HOST', 'server.scraperwiki.com')
 def get_dataset_url():
     try:
         with open('/home/dataset_url.txt', 'r') as file:
-            return file.read()
+            return file.read().strip()
     except IOError:
         return None
 
