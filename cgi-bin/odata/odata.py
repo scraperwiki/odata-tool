@@ -218,37 +218,43 @@ def get_cell_type(value):
     else:
         return 'Edm.String'
 
+import re
+
+DATELIKE_RE = re.compile(
+    "\d{2}(?:\d{2})?[/-]?\d{1,2}[/-]?\d{1,2}" # date
+    "[T ]"
+    "\d{2}:?\d{2}(?::?\d{2})?" # time
+    "(?:Z|[-+]\d{2}(:?\d{2})?)?" # timezone
+)
 
 def is_datey(value):
-    if isinstance(value, (str, unicode)):
-        if value in " -'":
-            return False
-        elif is_stringy_integer(value):
-            return False
-        elif is_stringy_float(value):
-            return False
-        else:
-            try:
-                dateutil.parser.parse(value)
-                return True
-            except Exception:
-                return False
-    else:
+    if not isinstance(value, (str, unicode)):
         return False
 
+    if value in " -'":
+        return False
+    elif isint(value):
+        return False
+    elif isfloat(value):
+        return False
 
-def is_stringy_integer(value):
+    if DATELIKE_RE.match(value) is not None:
+        return True
+
+    return False
+
+def isint(value):
     try:
         int(value)
         return True
     except ValueError:
         return False
 
-def is_stringy_float(value):
+def isfloat(value):
     try:
         float(value)
         return True
-    except Exception:
+    except ValueError:
         return False
 
 

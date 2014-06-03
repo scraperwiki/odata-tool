@@ -212,17 +212,22 @@ class TypeDetectionTestCase(unittest.TestCase):
         t = odata.get_cell_type('2014-02-20 08:31:25+00:00')
         assert_equal(t, 'Edm.DateTime')
 
-    def test_that_nonstandard_dates_are_correctly_detected(self):
-        t = odata.get_cell_type('Sat, 07 Sep 2002 00:00:01 GMT')
-        assert_equal(t, 'Edm.DateTime')
 
-    def test_that_standalone_dates_are_correctly_detected(self):
-        t = odata.get_cell_type('2014/01/30')
-        assert_equal(t, 'Edm.DateTime')
+    # (pwaller): I disabled these because we decided that for simplicity we
+    # will just match ISO-like times for now. We used to call datetime.parser
+    # to ask if it was a date but this turned out to be extremely expensive.
 
-    def test_that_standalone_times_are_correctly_detected(self):
-        t = odata.get_cell_type('13:00')
-        assert_equal(t, 'Edm.DateTime')
+    # def test_that_nonstandard_dates_are_correctly_detected(self):
+    #     t = odata.get_cell_type('Sat, 07 Sep 2002 00:00:01 GMT')
+    #     assert_equal(t, 'Edm.DateTime')
+
+    # def test_that_standalone_dates_are_correctly_detected(self):
+    #     t = odata.get_cell_type('2014/01/30')
+    #     assert_equal(t, 'Edm.DateTime')
+
+    # def test_that_standalone_times_are_correctly_detected(self):
+    #     t = odata.get_cell_type('13:00')
+    #     assert_equal(t, 'Edm.DateTime')
 
     def test_that_dashes_are_correctly_detected(self):
         t = odata.get_cell_type('-')
