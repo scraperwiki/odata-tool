@@ -6,9 +6,11 @@ import cgitb
 cgitb.enable()
 data = cgi.FieldStorage()
 
+
 def save_url(url):
     with open("/home/dataset_url.txt", "w") as fd:
         fd.write(url)
+
 
 def read_url():
     try:
@@ -20,5 +22,7 @@ def read_url():
 if 'url' in data:
     save_url(data['url'].value)
 
+print "Status: 200 OK"
+print "Content-Type: text/plain"
 print
 print read_url()
