@@ -22,3 +22,9 @@ The Python CGIHandler() we use often soaks up exceptions, making debugging 500 s
 ```
 SERVER_NAME=premium.scraperwiki.com SERVER_PORT=80 REQUEST_METHOD=GET REQUEST_URI='/dqx2xyq/publishToken/cgi-bin/odata' PATH_INFO='/dqx2xyq/publishToken/cgi-bin/odata' tool/cgi-bin/odata/odata.py
 ```
+
+## REFERENCES
+
+http://en.wikipedia.org/wiki/OData
+
+http://www.odata.org/documentation/odata-version-2-0/
