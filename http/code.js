@@ -12,8 +12,8 @@ var showEndpoints = function(datasetUrl) {
     $('#loading').hide()
 
     $.each(metadata.table, function(name) {
-      var odataUrl = datasetUrl + "/cgi-bin/odata/"
-      $('#feeds').append('<div><h2>' + name + '</h2><input type="text" value="' + odataUrl + name + '"></div>')
+      var odataUrl = datasetUrl + "/cgi-bin/odata/" + encodeURIComponent(name)
+      $('#feeds').append('<div><h2>' + name + '</h2><input type="text" value="' + odataUrl + '"></div>')
     })
   }).fail(function(jqXHR){
       $('#error').show().children('span').html('OData endpoint failed to respond:<br/>' + jqXHR.status + ' ' + jqXHR.statusText)
