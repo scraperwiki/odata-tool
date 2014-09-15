@@ -1,24 +1,14 @@
 # Connect with OData
 
-A ScraperWiki tool for opening your data in Tableau, QlikView and Excel Power Query.
+A ScraperWiki.com tool for opening your data in Tableau, QlikView and Excel Power Query.
 
 ## How it works
 
-When the tool is first installed, it records the source dataset url and `pip install`s Flask. The OData endpoint is generated via a CGI script.
+This tool is a thin wrapper that presents an OData URL to the
+user in a browser so that they can copy/paste it into Tableau or
+other application.
 
-## Tests
-
-Unit tests for the CGI script are stored in `/cgi-bin/odata`. You can run them with `nosetest` or `specloud`, like so:
-
-```
-cd tool/cgi-bin/odata
-specloud
-```
-
-## Debugging 500 errors
-
-The Python CGIHandler() we use often soaks up exceptions, making debugging 500 server errors particularly tricky. Try SSHing into your development dataset and running this, to see what's going wrong:
-
-```
-SERVER_NAME=premium.scraperwiki.com SERVER_PORT=80 REQUEST_METHOD=GET REQUEST_URI='/dqx2xyq/publishToken/cgi-bin/odata' PATH_INFO='/dqx2xyq/publishToken/cgi-bin/odata' tool/cgi-bin/odata/odata.py
-```
+All the hard work of actually generating OData is done by the
+[odata-cgi CGI script](https://github.com/scraperwiki/odata-cgi)
+which is
+[installed globally](https://github.com/scraperwiki/global-cgi).
